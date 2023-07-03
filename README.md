@@ -15,6 +15,11 @@ Each time this script is executed a new log file will be created in the format: 
 git clone https://github.com/ANFTechTeam/Migrate-ANFquota.git 
 ```
 
+## Install PowerShell module Az.NetAppFiles
+```powershell
+Install-Module Az.NetAppFiles
+```
+
 ### Use 'Set-AzContext' to set the Azure subscription
 ```powershell
 Set-AzContext -SubscriptionId <subscription ID>
@@ -22,7 +27,7 @@ Set-AzContext -SubscriptionId <subscription ID>
 
 ### List all volumes which have the 'legacy default quota' enabled
 ```powershell
-./Migrate-ANFQuota.ps1 -action list
+./Migrate-ANFquota.ps1 -action list
 ```
 
 ### Migrate a volume interactively
@@ -30,7 +35,7 @@ Set-AzContext -SubscriptionId <subscription ID>
 ./Migrate-ANFquota.ps1 -action migrate
 ```
 
-### Migrate a specific volume by providing the volume resource ID
+### Migrate a specific volume by providing the volume resource Id
 ```powershell
 ./Migrate-ANFquota.ps1 -action migrate -resourceId <volume resource id>
 ```
