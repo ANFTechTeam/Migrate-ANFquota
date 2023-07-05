@@ -2,7 +2,11 @@ param (
     [Parameter(Mandatory = $true)]
     [string]$action,
     [Parameter(Mandatory = $false)]
-    [string]$resourceId
+    [string]$resourceId,
+    [Parameter(Mandatory = $false)]
+    [string]$subnetResourceId,
+    [Parameter(Mandatory = $false)]
+    [string]$location
 )
 
 $timeStamp = get-date -Format yyyyMMddHHmmss
@@ -89,7 +93,10 @@ function New-VolumeWithLegacyQuota {
 $payload += $volumeName + @'
 ",
         "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-        "location": "eastus2",
+        "location": "
+'@        
+$payload += $location + @'
+",
         "properties": {
             "serviceLevel": "Standard",
             "usageThreshold": "107374182400",
@@ -98,7 +105,10 @@ $payload += $volumeName + @'
 $payload += $volumeName + @'
 ",
             "snapshotId": "",
-            "subnetId": "/subscriptions/REDACTED/resourceGroups/contoso.rg/providers/Microsoft.Network/virtualNetworks/eastus2_vnet/subnets/anf",
+            "subnetId": "
+'@            
+$payload += $subnetResourceId + @'        
+",
             "isDefaultQuotaEnabled": true,
             "defaultUserQuotaInKiBs": 5120,
             "defaultGroupQuotaInKiBs": 5120

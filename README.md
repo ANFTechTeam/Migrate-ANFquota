@@ -37,5 +37,10 @@ Set-AzContext -SubscriptionId <subscription ID>
 
 ### Migrate a specific volume by providing the volume resource Id
 ```powershell
-./Migrate-ANFquota.ps1 -action migrate -resourceId <volume resource id>
+./Migrate-ANFquota.ps1 -action migrate -resourceId <volume resource Id>
+```
+
+### Create a test volume to migrate
+```powershell
+./Migrate-ANFquota.ps1 -action create -resourceId <volume resource Id> -location <region for new volume> -subnetResourceId <existing delegated subnet Resource Id>
 ```
