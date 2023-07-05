@@ -1,6 +1,6 @@
 ## Introduction
 
-You can use this tool, Migrate-ANFquota.ps1, to migrate Azure NetApp Files volumes from the 'legacy default quota' system to the 'new default quota' system. 
+You can use this tool, Migrate-ANFquota.ps1, to migrate Azure NetApp Files default user and group quotas. 
 
 ## Prerequisites and Considerations
 
@@ -25,7 +25,7 @@ Install-Module Az.NetAppFiles
 Set-AzContext -SubscriptionId <subscription ID>
 ```
 
-### List all volumes which have the 'legacy default quota' enabled
+### List all volumes which are eligible
 ```powershell
 ./Migrate-ANFquota.ps1 -action list
 ```
