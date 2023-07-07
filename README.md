@@ -41,6 +41,15 @@ Set-AzContext -SubscriptionId <subscription ID>
 ```
 
 ### Create a test volume to migrate
+
+_Note: The **resource Id** specified in the following step is the resource Id of the volume you want to create._
+
+For example, if you want to create a new volume with the name '**newVolume**' in capacity pool '**myCapacityPool**' within the NetApp account '**myAccount**' in resource group '**contoso.rg**', the resource Id would be as follows:
+
+```
+/subscriptions/12345678-90ab-cdef-ghij-123456789abc/resourceGroups/contoso.rg/providers/Microsoft.NetApp/netAppAccounts/myAccount/capacityPools/myCapacityPool/volumes/newVolume
+```
+
 ```powershell
 ./Migrate-ANFquota.ps1 -action create -resourceId <volume resource Id> -location <region for new volume> -subnetResourceId <existing delegated subnet Resource Id>
 ```
