@@ -6,7 +6,9 @@ param (
     [Parameter(Mandatory = $false)]
     [string]$subnetResourceId,
     [Parameter(Mandatory = $false)]
-    [string]$location
+    [string]$location,
+    [Parameter(Mandatory = $false)]
+    [string]$protocol
 )
 
 $timeStamp = get-date -Format yyyyMMddHHmmss
@@ -100,7 +102,35 @@ $payload += $location + @'
         "properties": {
             "serviceLevel": "Standard",
             "usageThreshold": "107374182400",
-            "creationToken": "
+'@
+if($protocol -eq "cifs" -or $protocol -eq "smb"){
+    $payload += 
+@'
+        
+            "protocolTypes": [
+                "CIFS"
+            ],
+'@
+$payload += @'
+
+    "creationToken": "
+'@
+$payload += $volumeName + @'
+",
+            "snapshotId": "",
+            "subnetId": "
+'@            
+$payload += $subnetResourceId + @'        
+",
+            "isDefaultQuotaEnabled": true,
+            "defaultUserQuotaInKiBs": 5120
+        }
+    }
+'@
+}else{
+    $payload += @'
+
+    "creationToken": "
 '@
 $payload += $volumeName + @'
 ",
@@ -115,11 +145,14 @@ $payload += $subnetResourceId + @'
         }
     }
 '@
+}
+
     $createParams = @{
         Path = $volumeURI
         Payload = $payload
         Method = 'PUT'
     }
+    $createParams.Payload
     Invoke-AzRestMethod @createParams
 }
 
@@ -160,7 +193,7 @@ function Start-MigrateLegacyQuota($resourceIdToMigrate){
     $fail = $false
     $volumeDetails = Get-AzNetAppFilesVolume -ResourceId $resourceIdToMigrate
     $volumeDetails
-    if($null -ne $volumeDetails.DefaultUserQuotaInKiBs){
+    if($null -ne $volumeDetails.DefaultUserQuotaInKiBs -and $volumeDetails.DefaultUserQuotaInKiBs -gt 0){
         Write-Host -ForegroundColor Green "Applying new default user quota with value:"$volumeDetails.DefaultUserQuotaInKiBs
         Add-Content -Path $logFileName "Applying new default user quota..."
         Out-File -FilePath $logFileName -Append -InputObject $resourceIdToMigrate
@@ -180,7 +213,7 @@ function Start-MigrateLegacyQuota($resourceIdToMigrate){
         }
         
     }
-    if($null -ne $volumeDetails.DefaultGroupQuotaInKiBs) {
+    if($null -ne $volumeDetails.DefaultGroupQuotaInKiBs -and $volumeDetails.DefaultGroupQuotaInKiBs -gt 0) {
         Write-Host -ForegroundColor Green "Applying new default group quota with value:"$volumeDetails.DefaultGroupQuotaInKiBs
         Add-Content -Path $logFileName "Applying new default group quota..."
         Out-File -FilePath $logFileName -Append -InputObject $resourceIdToMigrate

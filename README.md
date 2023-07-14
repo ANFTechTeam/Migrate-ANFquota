@@ -1,3 +1,8 @@
+## Release Notes
+
+- July 14, 2023: added logic to ignore quota rule if equal to 0
+- July 14, 2023: added ability to specify protocol when creating test volume (smb/cifs/nfs)
+
 ## Introduction
 
 You can use this tool, Migrate-ANFquota.ps1, to migrate Azure NetApp Files default user and group quotas. 
@@ -51,5 +56,5 @@ For example, if you want to create a new volume with the name '**newVolume**' in
 ```
 
 ```powershell
-./Migrate-ANFquota.ps1 -action create -resourceId <volume resource Id> -location <region for new volume> -subnetResourceId <existing delegated subnet Resource Id>
+./Migrate-ANFquota.ps1 -action create -protocol smb|cifs|nfs -resourceId <volume resource Id> -location <region for new volume> -subnetResourceId <existing delegated subnet Resource Id>
 ```
