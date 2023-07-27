@@ -1,5 +1,6 @@
 ## Release Notes
 
+- July 27, 2023: fixed order of operations to remove quotas before applying new
 - July 14, 2023: added logic to ignore quota rule if equal to 0
 - July 14, 2023: added ability to specify protocol when creating test volume (smb/cifs/nfs)
 
