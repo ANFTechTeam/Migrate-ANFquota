@@ -193,17 +193,24 @@ function Start-MigrateLegacyQuota($resourceIdToMigrate){
     $fail = $false
     $volumeDetails = Get-AzNetAppFilesVolume -ResourceId $resourceIdToMigrate
     $volumeDetails
-    if($null -ne $volumeDetails.DefaultUserQuotaInKiBs -and $volumeDetails.DefaultUserQuotaInKiBs -gt 0){
-        Write-Host -ForegroundColor Green "Applying new default user quota with value:"$volumeDetails.DefaultUserQuotaInKiBs
+    $legacyDefaultUserQuotaInKiBs = $volumeDetails.DefaultUserQuotaInKiBs
+    $legacyDefaultGroupQuotaInKiBs = $volumeDetails.DefaultGroupQuotaInKiBs
+    Clear-VolumeLegacyQuota $resourceIdToMigrate $volumeDetails.UsageThreshold $volumeDetails.CreationToken
+    Write-Host ""
+    Write-Host -ForegroundColor Green "Sleeping for 60 seconds for legacy quota rules to delete completely."
+    Write-Host ""
+    Start-Sleep -Seconds 60
+    if($null -ne $legacyDefaultUserQuotaInKiBs -and $legacyDefaultUserQuotaInKiBs -gt 0){
+        Write-Host -ForegroundColor Green "Applying new default user quota with value:"$legacyDefaultUserQuotaInKiBs
         Add-Content -Path $logFileName "Applying new default user quota..."
         Out-File -FilePath $logFileName -Append -InputObject $resourceIdToMigrate
         Add-Content -Path $logFileName -NoNewLine "Default user quota value: "
-        Out-File -FilePath $logFileName -Append -InputObject $volumeDetails.DefaultUserQuotaInKiBs
+        Out-File -FilePath $logFileName -Append -InputObject $legacyDefaultUserQuotaInKiBs
         if(Get-AzNetAppFilesVolumeQuotaRule -ResourceGroupName $resourceIdToMigrate.split('/')[4] -AccountName $resourceIdToMigrate.split('/')[8] -PoolName $resourceIdToMigrate.split('/')[10] -VolumeName $resourceIdToMigrate.split('/')[12] | Where-Object {$_.QuotaType -eq "DefaultUserQuota"}){
             Write-Host "New default user quota already exists."
         }else{
             try {
-                New-AzNetAppFilesVolumeQuotaRule -ResourceGroupName $resourceIdToMigrate.split('/')[4] -AccountName $resourceIdToMigrate.split('/')[8] -PoolName $resourceIdToMigrate.split('/')[10] -VolumeName $resourceIdToMigrate.split('/')[12] -Location $volumeDetails.location -Name DefaultUserQuota -QuotaType DefaultUserQuota -QuotaSize $volumeDetails.DefaultUserQuotaInKiBs -ErrorAction Stop
+                New-AzNetAppFilesVolumeQuotaRule -ResourceGroupName $resourceIdToMigrate.split('/')[4] -AccountName $resourceIdToMigrate.split('/')[8] -PoolName $resourceIdToMigrate.split('/')[10] -VolumeName $resourceIdToMigrate.split('/')[12] -Location $volumeDetails.location -Name DefaultUserQuota -QuotaType DefaultUserQuota -QuotaSize $legacyDefaultUserQuotaInKiBs -ErrorAction Stop
             }
             catch {
                 Write-Host "Unable to apply new default user quota."
@@ -213,17 +220,17 @@ function Start-MigrateLegacyQuota($resourceIdToMigrate){
         }
         
     }
-    if($null -ne $volumeDetails.DefaultGroupQuotaInKiBs -and $volumeDetails.DefaultGroupQuotaInKiBs -gt 0) {
-        Write-Host -ForegroundColor Green "Applying new default group quota with value:"$volumeDetails.DefaultGroupQuotaInKiBs
+    if($null -ne $legacyDefaultGroupQuotaInKiBs -and $legacyDefaultGroupQuotaInKiBs -gt 0) {
+        Write-Host -ForegroundColor Green "Applying new default group quota with value:"$legacyDefaultGroupQuotaInKiBs
         Add-Content -Path $logFileName "Applying new default group quota..."
         Out-File -FilePath $logFileName -Append -InputObject $resourceIdToMigrate
         Add-Content -Path $logFileName -NoNewLine "Default group quota value: "
-        Out-File -FilePath $logFileName -Append -InputObject $volumeDetails.DefaultGroupQuotaInKiBs
+        Out-File -FilePath $logFileName -Append -InputObject $legacyDefaultGroupQuotaInKiBs
         if(Get-AzNetAppFilesVolumeQuotaRule -ResourceGroupName $resourceIdToMigrate.split('/')[4] -AccountName $resourceIdToMigrate.split('/')[8] -PoolName $resourceIdToMigrate.split('/')[10] -VolumeName $resourceIdToMigrate.split('/')[12] | Where-Object {$_.QuotaType -eq "DefaultGroupQuota"}){
             Write-Host "New default group quota already exists."
         }else{
             try {
-                New-AzNetAppFilesVolumeQuotaRule -ResourceGroupName $resourceIdToMigrate.split('/')[4] -AccountName $resourceIdToMigrate.split('/')[8] -PoolName $resourceIdToMigrate.split('/')[10] -VolumeName $resourceIdToMigrate.split('/')[12] -Location $volumeDetails.location -Name DefaultGroupQuota -QuotaType DefaultGroupQuota -QuotaSize $volumeDetails.DefaultGroupQuotaInKiBs -ErrorAction stop
+                New-AzNetAppFilesVolumeQuotaRule -ResourceGroupName $resourceIdToMigrate.split('/')[4] -AccountName $resourceIdToMigrate.split('/')[8] -PoolName $resourceIdToMigrate.split('/')[10] -VolumeName $resourceIdToMigrate.split('/')[12] -Location $volumeDetails.location -Name DefaultGroupQuota -QuotaType DefaultGroupQuota -QuotaSize $legacyDefaultGroupQuotaInKiBs -ErrorAction stop
             }
             catch {
                 Write-Host "Unable to apply new default group quota."
@@ -234,7 +241,7 @@ function Start-MigrateLegacyQuota($resourceIdToMigrate){
         
     }
     if($fail -eq $false){
-        Clear-VolumeLegacyQuota $resourceIdToMigrate $volumeDetails.UsageThreshold $volumeDetails.CreationToken
+        # Clear-VolumeLegacyQuota $resourceIdToMigrate $volumeDetails.UsageThreshold $volumeDetails.CreationToken
     }
     
 }
